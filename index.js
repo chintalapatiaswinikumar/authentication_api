@@ -5,7 +5,14 @@ const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 const bcrypt = require("bcrypt");
 
+const cors = require("cors");
+
 const app = express();
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(express.json());
 
 const jwt = require("jsonwebtoken");
