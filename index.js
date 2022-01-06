@@ -46,7 +46,7 @@ app.post("/register/", async (request, response) => {
     SELECT 
       * 
     FROM 
-      user 
+      project_user 
     WHERE 
       username = '${username}';`;
   const dbUser = await db.get(selectUserQuery);
@@ -54,7 +54,7 @@ app.post("/register/", async (request, response) => {
   if (dbUser === undefined) {
     const createUserQuery = `
      INSERT INTO
-      user (username, name, password, gender, location)
+      project_user (username, name, password, gender, location)
      VALUES
       (
        '${username}',
@@ -65,18 +65,23 @@ app.post("/register/", async (request, response) => {
       );`;
     console.log("creating user", createUserQuery);
     await db.run(createUserQuery);
-    response.send("User created successfully");
+    const error = {};
+    error["error_msg"] = "User created successfully";
+    response.send(error);
   } else {
     response.status(400);
-    response.send("User already exists");
+    const error = {};
+    error["error_msg"] = "User already exists";
+    response.send(error);
   }
 });
 
 // User Login API
 app.post("/login", async (request, response) => {
   const { username, password } = request.body;
-  const selectUserQuery = `SELECT * FROM user WHERE username = '${username}'`;
+  const selectUserQuery = `SELECT * FROM project_user WHERE username = '${username}'`;
   const dbUser = await db.get(selectUserQuery);
+  console.log("registered user", dbUser);
   if (dbUser === undefined) {
     response.status(400);
     let error = {};
@@ -118,7 +123,7 @@ app.post("/upload/", async (request, response) => {
       "body",
       typeof eachRecord.body
     );
-    return `(${eachRecord.userId}, ${eachRecord.id}, ${eachRecord.title} , ${eachRecord.body})`;
+    return `(${eachRecord.userId}, ${eachRecord.id}, '${eachRecord.title}' , '${eachRecord.body}')`;
   });
 
   const valuesString = values.join(",");
@@ -129,13 +134,20 @@ app.post("/upload/", async (request, response) => {
       project_table (user_id,id,title,body)
     VALUES
        ${valuesString};`;
-  try {
-    const dbResponse = await db.run(addUploadQuery);
-    /*     console.log("response", dbResponse);
-     */
-  } catch (err) {
-    console.log(err);
-  }
-  /* const id = dbResponse.id;
-  response.send({ bookId: bookId }); */
+  const dbResponse = await db.run(addUploadQuery);
+  const id = dbResponse.lastID;
+  response.send({ id: id, message: "File data uploaded successfully!!!" });
+});
+
+/// User get API
+app.get("/records/", async (request, response) => {
+  const getRecordsQuery = `
+    SELECT
+      *
+    FROM
+      project_Table
+    ORDER BY
+      user_id;`;
+  const records = await db.all(getRecordsQuery);
+  response.send(records);
 });

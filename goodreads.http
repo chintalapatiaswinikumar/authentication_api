@@ -1,7 +1,4 @@
-###
 
-GET http://localhost:3000/books/
-Authorization: Bearer JWT_TOKEN
 
 ###
 
@@ -9,11 +6,11 @@ POST http://localhost:3000/register/
 Content-Type: application/json
 
 {   
-    "name":"rahula",
-    "username":"rahul123",
-    "password": "rahul@456",
-    "gender": "Male",
-    "location":"hyderabad"
+    "name":"",
+    "username":"",
+    "password": "",
+    "gender": "",
+    "location":""
 }
 
 
@@ -23,8 +20,8 @@ POST http://localhost:3000/login
 Content-Type: application/json
 
 {
-    "username":"rahul123",
-    "password": "rahul@456"
+    "username":"caswinikumar",
+    "password": "chintalapati@456"
 }
 ####
 
@@ -39,3 +36,6 @@ Content-Type: application/json
     "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
   }
 ]
+
+###
+GET http://localhost:3000/records
