@@ -79,7 +79,10 @@ app.post("/login", async (request, response) => {
   const dbUser = await db.get(selectUserQuery);
   if (dbUser === undefined) {
     response.status(400);
-    response.send("Invalid User");
+    let error = {};
+    error["error_msg"] =
+      "user name is not found in data base,please register before login";
+    response.send(error);
   } else {
     const isPasswordMatched = await bcrypt.compare(password, dbUser.password);
     if (isPasswordMatched === true) {
@@ -90,7 +93,49 @@ app.post("/login", async (request, response) => {
       response.send({ jwtToken });
     } else {
       response.status(400);
-      response.send("Invalid Password");
+      let error = {};
+      error["error_msg"] =
+        "your password did'nt match with the username provided";
+      response.send(error);
     }
   }
+});
+
+//// User Upload API
+app.post("/upload/", async (request, response) => {
+  const uploadedDetails = request.body;
+  //console.log("uploaded Details", uploadedDetails);
+
+  //let us assume we have the table named book with title, author_id, and rating as columns
+  const values = uploadedDetails.map((eachRecord) => {
+    console.log(
+      "userid",
+      typeof eachRecord.userId,
+      "id",
+      typeof eachRecord.id,
+      "title",
+      typeof eachRecord.title,
+      "body",
+      typeof eachRecord.body
+    );
+    return `(${eachRecord.userId}, ${eachRecord.id}, ${eachRecord.title} , ${eachRecord.body})`;
+  });
+
+  const valuesString = values.join(",");
+  console.log(valuesString);
+
+  const addUploadQuery = `
+    INSERT INTO
+      project_table (user_id,id,title,body)
+    VALUES
+       ${valuesString};`;
+  try {
+    const dbResponse = await db.run(addUploadQuery);
+    /*     console.log("response", dbResponse);
+     */
+  } catch (err) {
+    console.log(err);
+  }
+  /* const id = dbResponse.id;
+  response.send({ bookId: bookId }); */
 });
