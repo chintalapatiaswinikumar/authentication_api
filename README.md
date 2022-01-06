@@ -1,3 +1,3 @@
 # authentication_api
 username : caswinikumar,
-password " chintalapati@123
+password : chintalapati@123
