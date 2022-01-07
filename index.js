@@ -17,7 +17,7 @@ app.use(express.json());
 
 const jwt = require("jsonwebtoken");
 
-const dbPath = path.join(__dirname, "goodreads.db");
+const dbPath = path.join(__dirname, "post.db");
 
 let db = null;
 
@@ -41,7 +41,6 @@ initializeDBAndServer();
 app.post("/register/", async (request, response) => {
   const { username, name, password, gender, location } = request.body;
   const hashedPassword = await bcrypt.hash(password, 10);
-  console.log("hashed password", hashedPassword);
   const selectUserQuery = `
     SELECT 
       * 
@@ -50,7 +49,6 @@ app.post("/register/", async (request, response) => {
     WHERE 
       username = '${username}';`;
   const dbUser = await db.get(selectUserQuery);
-  console.log("user from db", dbUser);
   if (dbUser === undefined) {
     const createUserQuery = `
      INSERT INTO
@@ -63,7 +61,6 @@ app.post("/register/", async (request, response) => {
        '${gender}',
        '${location}'  
       );`;
-    console.log("creating user", createUserQuery);
     await db.run(createUserQuery);
     const error = {};
     error["error_msg"] = "User created successfully";
@@ -81,7 +78,6 @@ app.post("/login", async (request, response) => {
   const { username, password } = request.body;
   const selectUserQuery = `SELECT * FROM project_user WHERE username = '${username}'`;
   const dbUser = await db.get(selectUserQuery);
-  console.log("registered user", dbUser);
   if (dbUser === undefined) {
     response.status(400);
     let error = {};
@@ -109,25 +105,12 @@ app.post("/login", async (request, response) => {
 //// User Upload API
 app.post("/upload/", async (request, response) => {
   const uploadedDetails = request.body;
-  //console.log("uploaded Details", uploadedDetails);
 
-  //let us assume we have the table named book with title, author_id, and rating as columns
   const values = uploadedDetails.map((eachRecord) => {
-    console.log(
-      "userid",
-      typeof eachRecord.userId,
-      "id",
-      typeof eachRecord.id,
-      "title",
-      typeof eachRecord.title,
-      "body",
-      typeof eachRecord.body
-    );
     return `(${eachRecord.userId}, ${eachRecord.id}, '${eachRecord.title}' , '${eachRecord.body}')`;
   });
 
   const valuesString = values.join(",");
-  console.log(valuesString);
 
   const addUploadQuery = `
     INSERT INTO
